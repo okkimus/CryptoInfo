@@ -9,41 +9,42 @@ namespace Application.Wallets.Commands.AddWallet
 {
     public class AddWalletHandler : IRequestHandler<AddWalletCommand, Wallet>
     {
-        private IWalletService _walletService;
+        private readonly IWalletService _walletService;
 
         public AddWalletHandler(IWalletService walletService)
         {
             _walletService = walletService;
         }
 
-        public Task<Wallet> Handle(AddWalletCommand request, CancellationToken cancellationToken)
+        public async Task<Wallet> Handle(AddWalletCommand request, CancellationToken cancellationToken)
         {
             var wallet = request.walletToAdd;
 
             ValidateWallet(wallet);
-            CheckIfWalletExists(wallet);
 
-            var addedWallet = _walletService.AddWallet(request.walletToAdd);
+            if (WalletExists(wallet))
+            {
+                throw new WalletAlreadyExistsException(wallet.Name, WalletExistsType.Address);
+            }
+            
+            var addedWallet = await _walletService.AddWalletAsync(request.walletToAdd);
 
-            return Task.FromResult(addedWallet);
+            return addedWallet;
         }
 
-        private void CheckIfWalletExists(Wallet wallet)
+        private bool WalletExists(Wallet wallet)
         {
-            var existingWallet = _walletService.GetWalletByName(wallet.Name);
-
-            if (existingWallet != null)
+            try
             {
-                if (
-                    existingWallet.Address.Value == wallet.Address.Value &&
-                    existingWallet.Network == wallet.Network)
-                {
-                    throw new WalletAlreadyExistsException(wallet.Address.Value, WalletExistsType.Address);
-                }
-                if (existingWallet.Name == wallet.Name)
-                {
-                    throw new WalletAlreadyExistsException(wallet.Name, WalletExistsType.Name);
-                }
+                var existingWallet = _walletService.GetWalletByName(wallet.Name);
+
+                return existingWallet != null &&
+                       existingWallet.Address.Value == wallet.Address.Value &&
+                       existingWallet.Network == wallet.Network;
+            }
+            catch (WalletNotFound)
+            {
+                return false;
             }
         }
 

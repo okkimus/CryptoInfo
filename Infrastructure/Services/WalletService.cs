@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Application.ServiceAbstractions;
 using Domain;
 using Domain.Exceptions;
@@ -11,7 +12,7 @@ namespace Infrastructure.Services
     {
         private readonly Dictionary<string, Wallet> _wallets = new Dictionary<string, Wallet>();
 
-        public Wallet AddWallet(Wallet walletToAdd)
+        public Task<Wallet> AddWalletAsync(Wallet walletToAdd)
         {
             if (_wallets.ContainsKey(walletToAdd.Name))
             {
@@ -20,7 +21,7 @@ namespace Infrastructure.Services
 
             _wallets.Add(walletToAdd.Name, walletToAdd);
             
-            return walletToAdd;
+            return Task.FromResult(walletToAdd);
         }
 
         public Wallet GetWalletByName(string walletName)
