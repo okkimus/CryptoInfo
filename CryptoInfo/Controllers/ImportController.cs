@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using Application.Importers.CsvTxImporter.ImportTxs;
+using Domain;
+using Infrastructure.Services;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,20 +14,34 @@ namespace CryptoInfo.Controllers
     [Route("[controller]/[action]")]
     public class ImportController : ControllerBase
     {
-        [HttpPost]
-        public async Task<ActionResult> Transactions(IFormFile file)
+        private readonly IMediator _mediator;
+
+        public ImportController(IMediator mediator)
         {
-            // Pass the file for a CSV file handler
-            // Save the tx to DB
-            // Return number of imported txs
+            _mediator = mediator;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<List<Transaction>>> Transactions(IFormFile txFile, IFormFile transferFile)
+        {
+            var transactions = new List<Transaction>();
             
-            // string fileContents;
-            // using (var stream = file.OpenReadStream())
-            // using (var reader = new StreamReader(stream))
-            // {
-            //     fileContents = await reader.ReadToEndAsync();
-            // }
-            return Ok("");
+            using (var txStream = new MemoryStream())
+            using (var transferStream = new MemoryStream())
+            {
+                await txFile.CopyToAsync(txStream);
+                await transferFile.CopyToAsync(transferStream);
+                transactions = await _mediator.Send(new ImportTxsCommand
+                {
+                    Options = new CsvImporterOptions
+                    {
+                        TxCsv = txStream,
+                        TransferCsv = transferStream
+                    }
+                });
+            }
+            
+            return Ok(transactions);
         }
     }
 }

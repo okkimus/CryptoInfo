@@ -3,25 +3,35 @@ import { useState } from "react";
 import axios from 'axios';
 
 function FileUpload() {
-    const [file, setFile] = useState<any>(null);
+    const [txFile, setTxFile] = useState<any>(null);
+    const [transferFile, setTransferFile] = useState<any>(null);
     
-    const onFileChange = (event: any) => {
-        setFile(event.target.files[0]);
+    const onTxFileChange = (event: any) => {
+        setTxFile(event.target.files[0]);
+    };
+
+    const onTrasnferFileChange = (event: any) => {
+        setTransferFile(event.target.files[0]);
     };
     
     const onFileUpload = () => {
-        // Create an object of formData
         const formData = new FormData();
 
-        // Update the formData object
         formData.append(
-            "file",
-            file,
-            file.name
+            "txFile",
+            txFile,
+            txFile.name
+        );
+        
+        formData.append(
+            "transferFile",
+            transferFile,
+            transferFile.name
         );
 
         // Details of the uploaded file
-        console.log(file);
+        console.log(txFile);
+        console.log(transferFile);
 
         // Request made to the backend api
         // Send formData object
@@ -35,7 +45,8 @@ function FileUpload() {
     
     return (
         <div className="FileUpload">
-            <input type="file" onChange={onFileChange} />
+            <input type="file" onChange={onTxFileChange} />
+            <input type="file" onChange={onTrasnferFileChange} />
             <button onClick={onFileUpload}>
                 Upload!
             </button>

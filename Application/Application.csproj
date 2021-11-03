@@ -43,6 +43,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Importers\ImportTxs\ImportTxsCommand.cs" />
+    <Compile Include="Importers\ImportTxs\ImportTxsHandler.cs" />
+    <Compile Include="ServiceAbstractions\ITransactionImporter.cs" />
     <Compile Include="ServiceAbstractions\IWalletService.cs" />
     <Compile Include="Wallets\Commands\AddWallet\AddWalletCommand.cs" />
     <Compile Include="Wallets\Commands\AddWallet\AddWalletHandler.cs" />
