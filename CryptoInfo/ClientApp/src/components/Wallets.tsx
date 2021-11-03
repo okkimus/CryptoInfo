@@ -17,12 +17,14 @@ function Wallets() {
 
     const getWallets = () => {
         axios.get("/wallet")
-            .then(data => handleWalletData(data.data));
+            .then(data => handleWalletData(data.data.result));
     };
     
     const handleWalletData = (wallets: Array<Wallet>) => {
         console.log(wallets);
-        setWallets(wallets);
+        if (wallets.length > 0) {
+            setWallets(wallets);
+        }
     }
 
     return (

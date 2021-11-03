@@ -24,6 +24,12 @@ namespace Infrastructure.Services
             return Task.FromResult(walletToAdd);
         }
 
+        public Task<List<Wallet>> GetWalletsAsync()
+        {
+            var wallets = _wallets.Values.ToList();
+            return Task.FromResult(wallets);
+        }
+
         public Wallet GetWalletByName(string walletName)
         {
             Wallet wallet;

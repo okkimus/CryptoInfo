@@ -49,6 +49,8 @@
     <Compile Include="Wallets\Queries\GetWalletByAddress\GetWalletByAddressHandler.cs" />
     <Compile Include="Wallets\Queries\GetWalletByAddress\GetWalletByAddressQuery.cs" />
     <Compile Include="Wallets\Queries\GetWalletByName\GetWalletByNameHandler.cs" />
+    <Compile Include="Wallets\Queries\GetWallets\GetWalletsHandler.cs" />
+    <Compile Include="Wallets\Queries\GetWallets\GetWalletsQuery.cs" />
     <Compile Include="Wallets\Queries\GetWalletValue\GetWalletValueHandler.cs" />
     <Compile Include="Wallets\Queries\GetWalletValue\GetWalletValueQuery.cs" />
     <Compile Include="Wallets\Queries\GetWalletByName\GetWalletByNameQuery.cs" />

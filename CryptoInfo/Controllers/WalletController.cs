@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Application.ServiceAbstractions;
 using Application.Wallets.Commands.AddWallet;
+using Application.Wallets.Queries.GetWallets;
 using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -23,11 +24,7 @@ namespace CryptoInfo.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Wallet>>> GetWallets()
         {
-            var createdWallet = new Wallet(Network.Fantom, new Address("123", AddressType.Wallet), "hello1");
-            var createdWallet2 = new Wallet(Network.Fantom, new Address("1234", AddressType.Wallet), "hello2");
-
-            var wallets = new List<Wallet> { createdWallet, createdWallet2 };
-
+            var wallets = _mediator.Send(new GetWalletsQuery());
             return Ok(wallets);   
         }
 
