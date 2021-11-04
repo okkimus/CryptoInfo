@@ -52,7 +52,7 @@ namespace Infrastructure.Services
 
                 return wallet;
             }
-            catch (InvalidOperationException e)
+            catch (InvalidOperationException)
             {
                 throw new WalletNotFound($"Wallet with given address {address} doesn't exist.");
             }

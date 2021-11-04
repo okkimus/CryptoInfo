@@ -11,15 +11,10 @@ namespace Infrastructure.Services
 {
     public class CsvTransactionImporter : ITransactionImporter
     {
-        private StreamReader _stream;
         private CsvImporterOptions _options;
-
-        private IEnumerable<Transfer> _transferRecords;
-        private IEnumerable<Transaction> _transactionRecords;
-
-        private List<CsvReader> _readers;
-
-
+        private List<CsvReader> _csvReaders = new List<CsvReader>();
+        private List<StreamReader> _streamReaders = new List<StreamReader>();
+        
         public List<Transaction> ReadTransactions(ITransactionImporterOptions options)
         {
             _options = options as CsvImporterOptions;
@@ -58,9 +53,11 @@ namespace Infrastructure.Services
 
         public IEnumerable<T> ReadRecords<T>(MemoryStream stream)
         {
-            var reader = new CsvReader(_stream, CultureInfo.InvariantCulture);
+            var streamReader = new StreamReader(stream);
+            var reader = new CsvReader(streamReader, CultureInfo.InvariantCulture);
             // Store the readers so we can dispose them later.
-            _readers.Add(reader);
+            _csvReaders.Add(reader);
+            _streamReaders.Add(streamReader);
             
             var records = reader.GetRecords<T>();
             return records;
@@ -90,7 +87,11 @@ namespace Infrastructure.Services
         
         private void EndImport()
         {
-            foreach (var reader in _readers)
+            foreach (var reader in _csvReaders)
+            {
+                reader.Dispose();
+            }
+            foreach (var reader in _streamReaders)
             {
                 reader.Dispose();
             }

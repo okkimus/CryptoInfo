@@ -24,7 +24,7 @@ namespace CryptoInfo.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Wallet>>> GetWallets()
         {
-            var wallets = _mediator.Send(new GetWalletsQuery());
+            var wallets = await _mediator.Send(new GetWalletsQuery());
             return Ok(wallets);   
         }
 
