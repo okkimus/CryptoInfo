@@ -31,6 +31,11 @@ namespace CryptoInfo.Controllers
             {
                 await txFile.CopyToAsync(txStream);
                 await transferFile.CopyToAsync(transferStream);
+
+                // Rewind the positions. There's prolly better ways to do this.
+                txStream.Position = 0;
+                transferStream.Position = 0;
+                
                 transactions = await _mediator.Send(new ImportTxsCommand
                 {
                     Options = new CsvImporterOptions

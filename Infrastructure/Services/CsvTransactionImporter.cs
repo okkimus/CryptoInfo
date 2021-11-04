@@ -27,7 +27,24 @@ namespace Infrastructure.Services
             var txsEnumerator = txs.GetEnumerator();
             var transfersEnumerator = transfers.GetEnumerator();
             
-            // We need to setup the first transfer because we can't go back with enumerator.
+            // There's 3 different situations.
+            // 1. The tx is only in TxCsv (or in other words, there wasn't any ERC-20 transfers in that tx),
+            //    i.e. approving token for spending)
+            // 2. The tx is in TxCsv and TransferCsv, i.e. when swapping tokens in a DEX)
+            // 3. The tx in only in TransferCsv (the tx was initiated from another wallet / contract),
+            //    i.e. when someone sends you ERC-20 tokens or liquidation happens.
+            
+            // Handling of situations:
+            // 1. Create a Transaction object without any transfers.
+            // 2. Create a Transaction object with all the transfers associated with it.
+            // 3. Create a Transaction object with all the transfers, but flag the transaction as external.
+            
+            // Logic:
+            // Read lines from each file at the same time. Compare the timestamps:
+            // - If the timestamp are same, check if tx hashes match and if so group them together. If not,
+            //   create separate txs
+            // - Select earlier one and create tx from that. Read next line after the earliest tx and repeat.
+
             transfersEnumerator.MoveNext();
             var currentTransfer = transfersEnumerator.Current;
 
