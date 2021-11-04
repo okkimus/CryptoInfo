@@ -45,22 +45,62 @@ namespace Infrastructure.Services
             //   create separate txs
             // - Select earlier one and create tx from that. Read next line after the earliest tx and repeat.
 
+            txsEnumerator.MoveNext();
+            var currentTx = txsEnumerator.Current;
             transfersEnumerator.MoveNext();
             var currentTransfer = transfersEnumerator.Current;
 
-            while (txsEnumerator.MoveNext())
+            if (currentTransfer.DateTime == currentTx.DateTime)
             {
-                var tx = MapTransaction(txsEnumerator.Current);
-
-                while (currentTransfer.Txhash == tx.Hash)
+                if (currentTransfer.Txhash == currentTx.Txhash)
                 {
-                    var transfer = MapTransfer(currentTransfer);       
-                    tx.AddTransfer(transfer);
+                    var result = MapTransaction(currentTx);
+                    
+                    var transfers2 = new List<Transfer>();
+                    result.AddTransfer(MapTransfer(currentTransfer));
 
-                    transfersEnumerator.MoveNext();
+                    while (transfersEnumerator.MoveNext() && transfersEnumerator.Current.Txhash == currentTx.Txhash)
+                    {
+                        currentTransfer = transfersEnumerator.Current;
+                        result.AddTransfer(MapTransfer(currentTransfer));
+
+                    }
+
+                    resultTransactions.Add(result);
                 }
-                
-                resultTransactions.Add(tx);
+                else
+                {
+                    // TODO: There possibility for collision with external TX and wallets own TX which could lead into
+                    // situation where transfers aren't read correctly to the tx. Need to add tests for this case and
+                    // update the code afterwards!
+                    
+                    // Create own tx and create external tx.
+                    resultTransactions.Add(MapTransaction(currentTx));
+
+                    var externalTx = new Transaction(currentTransfer.Txhash, currentTransfer.DateTime, 
+                        string.Empty, string.Empty, 0, 0);
+                    externalTx.AddTransfer(MapTransfer(currentTransfer));
+                    while (transfersEnumerator.MoveNext() && transfersEnumerator.Current.Txhash == externalTx.Hash)
+                    {
+                        currentTransfer = transfersEnumerator.Current;
+                        externalTx.AddTransfer(MapTransfer(currentTransfer));
+                    }
+                }
+            }
+            else if (currentTransfer.DateTime < currentTx.DateTime)
+            {
+                resultTransactions.Add(MapTransaction(currentTx));
+            }
+            else if (currentTransfer.DateTime > currentTx.DateTime)
+            {
+                var externalTx = new Transaction(currentTransfer.Txhash, currentTransfer.DateTime, 
+                    string.Empty, string.Empty, 0, 0);
+                externalTx.AddTransfer(MapTransfer(currentTransfer));
+                while (transfersEnumerator.MoveNext() && transfersEnumerator.Current.Txhash == externalTx.Hash)
+                {
+                    currentTransfer = transfersEnumerator.Current;
+                    externalTx.AddTransfer(MapTransfer(currentTransfer));
+                }
             }
             
             EndImport();
