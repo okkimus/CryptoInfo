@@ -14,6 +14,9 @@ namespace Infrastructure.Services
         private CsvImporterOptions _options;
         private List<CsvReader> _csvReaders = new List<CsvReader>();
         private List<StreamReader> _streamReaders = new List<StreamReader>();
+
+        private bool _txsLeftToRead = false;
+        private bool _transfersLeftToRead = false;
         
         public List<Transaction> ReadTransactions(ITransactionImporterOptions options)
         {
@@ -45,16 +48,53 @@ namespace Infrastructure.Services
             //   create separate txs
             // - Select earlier one and create tx from that. Read next line after the earliest tx and repeat.
 
-            txsEnumerator.MoveNext();
-            var currentTx = txsEnumerator.Current;
-            transfersEnumerator.MoveNext();
-            var currentTransfer = transfersEnumerator.Current;
+            _txsLeftToRead = txsEnumerator.MoveNext();
+            _transfersLeftToRead = transfersEnumerator.MoveNext();
 
+            try
+            {
+                while (_txsLeftToRead || _transfersLeftToRead)
+                {
+                    var bothAvailable = _txsLeftToRead && _transfersLeftToRead;
+
+                    if (bothAvailable)
+                    {
+                        var result = CreateTxWhenBothAvailable(txsEnumerator, transfersEnumerator);
+                        resultTransactions.AddRange(result);
+                    }
+                    else if (_txsLeftToRead)
+                    {
+                        var currentTx = txsEnumerator.Current;
+                        resultTransactions.Add(MapTransaction(currentTx));
+                    }
+                    else
+                    {
+                        resultTransactions.Add(CreateExternalTransaction(transfersEnumerator));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            
+            EndImport();
+            
+            return resultTransactions;
+        }
+
+        private List<Transaction> CreateTxWhenBothAvailable(IEnumerator<FtmScanTx> txs, IEnumerator<FtmScanTransfer> transfers)
+        {
+            var currentTx = txs.Current;
+            var currentTransfer = transfers.Current;
+            var result = new List<Transaction>();
+            
             if (currentTransfer.DateTime == currentTx.DateTime)
             {
                 if (currentTransfer.Txhash == currentTx.Txhash)
                 {
-                    resultTransactions.Add(CreateTransactionWithTransfers(currentTx, transfersEnumerator));
+                    result.Add(CreateTransactionWithTransfers(currentTx, transfers));
+                    _txsLeftToRead = txs.MoveNext();
                 }
                 else
                 {
@@ -64,22 +104,22 @@ namespace Infrastructure.Services
                     // block on chain.)
                     
                     // Create own tx and create external tx.
-                    resultTransactions.Add(MapTransaction(currentTx));
-                    resultTransactions.Add(CreateExternalTransaction(transfersEnumerator));
+                    result.Add(MapTransaction(currentTx));
+                    _txsLeftToRead = txs.MoveNext();
+                    result.Add(CreateExternalTransaction(transfers));
                 }
-            }
-            else if (currentTransfer.DateTime < currentTx.DateTime)
-            {
-                resultTransactions.Add(MapTransaction(currentTx));
             }
             else if (currentTransfer.DateTime > currentTx.DateTime)
             {
-                resultTransactions.Add(CreateExternalTransaction(transfersEnumerator));
+                result.Add(MapTransaction(currentTx));
+                _txsLeftToRead = txs.MoveNext();
             }
-            
-            EndImport();
-            
-            return resultTransactions;
+            else if (currentTransfer.DateTime < currentTx.DateTime)
+            {
+                result.Add(CreateExternalTransaction(transfers));
+            }
+
+            return result;
         }
 
         private Transaction CreateTransactionWithTransfers(FtmScanTx tx, IEnumerator<FtmScanTransfer> transfers)
@@ -101,13 +141,11 @@ namespace Infrastructure.Services
 
         private Transaction MapTransfersToTx(Transaction tx, IEnumerator<FtmScanTransfer> transfers)
         {
-            var currentTransfer = GetCurrentTransfer(transfers);
-            
-            tx.AddTransfer(MapTransfer(currentTransfer));
-            while (transfers.MoveNext() && transfers.Current.Txhash == tx.Hash)
+            while (_transfersLeftToRead && transfers.Current?.Txhash == tx.Hash)
             {
-                currentTransfer = transfers.Current;
+                var currentTransfer = transfers.Current;
                 tx.AddTransfer(MapTransfer(currentTransfer));
+                _transfersLeftToRead = transfers.MoveNext();
             }
 
             return tx;
@@ -192,11 +230,11 @@ namespace Infrastructure.Services
         [Index(6)]
         public string ContractAddress { get; set; }
         [Index(7)]
-        public int Value_IN { get; set; }
+        public double Value_IN { get; set; }
         [Index(8)]
-        public int Value_OUT { get; set; }
+        public double Value_OUT { get; set; }
         [Index(9)]
-        public int CurrentValue { get; set; }
+        public double CurrentValue { get; set; }
         [Index(10)]
         public double TxnFeeFtm { get; set; }
         [Index(11)]

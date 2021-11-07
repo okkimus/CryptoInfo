@@ -9,13 +9,13 @@ namespace Domain
         public DateTime Timestamp { get; }
         public string From { get; }
         public string To { get; }
-        public int ValueIn { get; set; }
-        public int ValueOut { get; set; }
+        public double ValueIn { get; set; }
+        public double ValueOut { get; set; }
         public List<Transfer> Transfers { get; }
         public bool External { get; set; }
         
 
-        public Transaction(string hash, DateTime timestamp, string from, string to, int valueIn, int valueOut)
+        public Transaction(string hash, DateTime timestamp, string from, string to, double valueIn, double valueOut)
         {
             Hash = hash;
             Timestamp = timestamp;
@@ -26,7 +26,7 @@ namespace Domain
             Transfers = new List<Transfer>();
         }
         
-        public Transaction(string hash, DateTime timestamp, string from, string to, int valueIn, int valueOut, bool external)
+        public Transaction(string hash, DateTime timestamp, string from, string to, double valueIn, double valueOut, bool external)
         {
             Hash = hash;
             Timestamp = timestamp;
@@ -38,7 +38,7 @@ namespace Domain
             External = external;
         }
 
-        public Transaction(string hash, DateTime timestamp, string from, string to, int valueIn, int valueOut, List<Transfer> transfers)
+        public Transaction(string hash, DateTime timestamp, string from, string to, double valueIn, double valueOut, List<Transfer> transfers)
         {
             Hash = hash;
             Timestamp = timestamp;
