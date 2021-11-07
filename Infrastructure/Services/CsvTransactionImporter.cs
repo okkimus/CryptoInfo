@@ -54,37 +54,18 @@ namespace Infrastructure.Services
             {
                 if (currentTransfer.Txhash == currentTx.Txhash)
                 {
-                    var result = MapTransaction(currentTx);
-                    
-                    var transfers2 = new List<Transfer>();
-                    result.AddTransfer(MapTransfer(currentTransfer));
-
-                    while (transfersEnumerator.MoveNext() && transfersEnumerator.Current.Txhash == currentTx.Txhash)
-                    {
-                        currentTransfer = transfersEnumerator.Current;
-                        result.AddTransfer(MapTransfer(currentTransfer));
-
-                    }
-
-                    resultTransactions.Add(result);
+                    resultTransactions.Add(CreateTransactionWithTransfers(currentTx, transfersEnumerator));
                 }
                 else
                 {
                     // TODO: There possibility for collision with external TX and wallets own TX which could lead into
                     // situation where transfers aren't read correctly to the tx. Need to add tests for this case and
-                    // update the code afterwards!
+                    // update the code afterwards! (Happens when the two or more tx related to address are added to same
+                    // block on chain.)
                     
                     // Create own tx and create external tx.
                     resultTransactions.Add(MapTransaction(currentTx));
-
-                    var externalTx = new Transaction(currentTransfer.Txhash, currentTransfer.DateTime, 
-                        string.Empty, string.Empty, 0, 0);
-                    externalTx.AddTransfer(MapTransfer(currentTransfer));
-                    while (transfersEnumerator.MoveNext() && transfersEnumerator.Current.Txhash == externalTx.Hash)
-                    {
-                        currentTransfer = transfersEnumerator.Current;
-                        externalTx.AddTransfer(MapTransfer(currentTransfer));
-                    }
+                    resultTransactions.Add(CreateExternalTransaction(transfersEnumerator));
                 }
             }
             else if (currentTransfer.DateTime < currentTx.DateTime)
@@ -93,19 +74,55 @@ namespace Infrastructure.Services
             }
             else if (currentTransfer.DateTime > currentTx.DateTime)
             {
-                var externalTx = new Transaction(currentTransfer.Txhash, currentTransfer.DateTime, 
-                    string.Empty, string.Empty, 0, 0);
-                externalTx.AddTransfer(MapTransfer(currentTransfer));
-                while (transfersEnumerator.MoveNext() && transfersEnumerator.Current.Txhash == externalTx.Hash)
-                {
-                    currentTransfer = transfersEnumerator.Current;
-                    externalTx.AddTransfer(MapTransfer(currentTransfer));
-                }
+                resultTransactions.Add(CreateExternalTransaction(transfersEnumerator));
             }
             
             EndImport();
             
             return resultTransactions;
+        }
+
+        private Transaction CreateTransactionWithTransfers(FtmScanTx tx, IEnumerator<FtmScanTransfer> transfers)
+        {
+            var transaction = MapTransaction(tx);
+
+            return MapTransfersToTx(transaction, transfers);
+        }
+        
+        private Transaction CreateExternalTransaction(IEnumerator<FtmScanTransfer> transfers)
+        {
+            var currentTransfer = GetCurrentTransfer(transfers);
+            
+            var externalTx = new Transaction(currentTransfer.Txhash, currentTransfer.DateTime, 
+                string.Empty, string.Empty, 0, 0, true);
+
+            return MapTransfersToTx(externalTx, transfers);
+        }
+
+        private Transaction MapTransfersToTx(Transaction tx, IEnumerator<FtmScanTransfer> transfers)
+        {
+            var currentTransfer = GetCurrentTransfer(transfers);
+            
+            tx.AddTransfer(MapTransfer(currentTransfer));
+            while (transfers.MoveNext() && transfers.Current.Txhash == tx.Hash)
+            {
+                currentTransfer = transfers.Current;
+                tx.AddTransfer(MapTransfer(currentTransfer));
+            }
+
+            return tx;
+        }
+
+        private FtmScanTransfer GetCurrentTransfer(IEnumerator<FtmScanTransfer> transfers)
+        {
+            var currentTransfer = transfers.Current;
+
+            if (currentTransfer == null)
+            {
+                throw new ArgumentNullException("No Transfer objects left in enumerator.");
+            }
+
+            return currentTransfer;
         }
 
         public IEnumerable<T> ReadRecords<T>(MemoryStream stream)
