@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.ServiceAbstractions;
 using Application.Wallets.Commands.AddWallet;
+using Application.Wallets.Queries.GetWalletByName;
 using Application.Wallets.Queries.GetWallets;
 using Domain;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CryptoInfo.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    // [Microsoft.AspNetCore.Mvc.Route("[controller]")]
     public class WalletController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -22,13 +21,24 @@ namespace CryptoInfo.Controllers
         }
         
         [HttpGet]
+        [Route("Wallet")]
+
         public async Task<ActionResult<List<Wallet>>> GetWallets()
         {
             var wallets = await _mediator.Send(new GetWalletsQuery());
             return Ok(wallets);   
         }
+        
+        [HttpGet]
+        [Route("Wallet/Name/{name?}")]
+        public async Task<ActionResult<List<Wallet>>> GetWalletByName(string name)
+        {
+            var wallet = await _mediator.Send(new GetWalletByNameQuery { Name = name });
+            return Ok(wallet);   
+        }
 
         [HttpPost]
+        [Route("Wallet")]
         public async Task<ActionResult<Wallet>> AddWallet([FromBody] WalletParams parameters)
         {
             // TODO: Swap out the hard coded values for real parameters

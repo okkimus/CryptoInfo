@@ -4,8 +4,8 @@ namespace Domain
 {
     public class Wallet
     {
-        public List<Balance> Balances { get; }
-        public List<Transaction> Transactions { get; }
+        public List<Balance> Balances { get; set; }
+        public List<Transaction> Transactions { get; set; }
         public Network Network { get; }
         public Address Address { get; }
         public string Name { get; set; }

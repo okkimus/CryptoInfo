@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.ServiceAbstractions;
@@ -17,8 +18,9 @@ namespace Infrastructure.Services
 
         public Task<List<Transaction>> GetTransactionsByWalletAddressAsync(string address)
         {
-            var txs = _transactions.FindAll(
-                tx => tx.From == address || tx.Transfers.Any(transfer => transfer.To == address));
+            var txs = _transactions.FindAll(tx => 
+                tx.From.Equals(address, StringComparison.OrdinalIgnoreCase) || 
+                tx.Transfers.Any(transfer => transfer.To.Equals(address, StringComparison.OrdinalIgnoreCase)));
 
             return Task.FromResult(txs);
         }

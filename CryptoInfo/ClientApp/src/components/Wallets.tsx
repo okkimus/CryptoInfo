@@ -1,23 +1,14 @@
 ﻿import React from 'react';
 import { useState } from "react";
 import axios from 'axios';
-
-interface Wallet {
-    address: Address
-    name: string
-}
-
-interface Address {
-    type: number
-    value: string
-}
+import Wallet from "../types/Wallet";
 
 function Wallets() {
     const [wallets, setWallets] = useState<Array<Wallet>>([]);
 
     const getWallets = () => {
         axios.get("/wallet")
-            .then(data => handleWalletData(data.data.result));
+            .then(data => handleWalletData(data.data));
     };
     
     const handleWalletData = (wallets: Array<Wallet>) => {

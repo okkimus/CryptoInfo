@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Services\BalanceService.cs" />
     <Compile Include="Services\CsvTransactionImporter.cs" />
     <Compile Include="Services\TransactionService.cs" />
     <Compile Include="Services\WalletService.cs" />

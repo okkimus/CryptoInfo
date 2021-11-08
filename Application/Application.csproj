@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Importers\ImportTxs\ImportTxsCommand.cs" />
     <Compile Include="Importers\ImportTxs\ImportTxsHandler.cs" />
+    <Compile Include="ServiceAbstractions\IBalanceService.cs" />
     <Compile Include="ServiceAbstractions\ITransactionImporter.cs" />
     <Compile Include="ServiceAbstractions\ITransactionService.cs" />
     <Compile Include="ServiceAbstractions\IWalletService.cs" />

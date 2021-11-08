@@ -1,17 +1,7 @@
 ﻿import React from 'react';
 import { useState } from "react";
 import axios from 'axios';
-
-interface Transaction {
-    hash: string 
-    timestamp: Date 
-    from: string 
-    to: string 
-    valueIn: number 
-    valueOut: number
-    // Transfers: Array<Transfer> 
-    external: boolean
-}
+import Transaction from "../types/Transaction";
 
 function TransactionList() {
     const [transactions, setTransactions] = useState<Array<Transaction>>([]);

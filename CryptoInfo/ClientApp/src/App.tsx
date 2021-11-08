@@ -4,7 +4,7 @@ import FileUpload from "./components/FileUpload";
 import WalletForm from "./components/WalletForm";
 import Wallets from "./components/Wallets";
 import TransactionList from "./components/TransactionList";
-
+import WalletDetails from "./components/WalletDetails";
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
           <FileUpload />
           <WalletForm />
           <TransactionList />
+          <WalletDetails />
       </header>
     </div>
   );
