@@ -3,6 +3,7 @@ import './App.css';
 import FileUpload from "./components/FileUpload";
 import WalletForm from "./components/WalletForm";
 import Wallets from "./components/Wallets";
+import TransactionList from "./components/TransactionList";
 
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
           <Wallets />
           <FileUpload />
           <WalletForm />
+          <TransactionList />
       </header>
     </div>
   );

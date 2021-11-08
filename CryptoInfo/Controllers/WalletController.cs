@@ -31,6 +31,7 @@ namespace CryptoInfo.Controllers
         [HttpPost]
         public async Task<ActionResult<Wallet>> AddWallet([FromBody] WalletParams parameters)
         {
+            // TODO: Swap out the hard coded values for real parameters
             var walletToAdd = new Wallet(Network.Fantom, new Address(parameters.Address, AddressType.Wallet),
                 parameters.Name);
             var command = new AddWalletCommand(walletToAdd);

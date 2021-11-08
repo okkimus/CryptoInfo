@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Services\CsvTransactionImporter.cs" />
+    <Compile Include="Services\TransactionService.cs" />
     <Compile Include="Services\WalletService.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -11,19 +11,20 @@ namespace Application.Importers.CsvTxImporter.ImportTxs
     public class ImportTxsHandler : IRequestHandler<ImportTxsCommand, List<Transaction>>
     {
         private readonly ITransactionImporter _importer;
+        private readonly ITransactionService _transactionService;
 
-        public ImportTxsHandler(ITransactionImporter importer)
+        public ImportTxsHandler(ITransactionImporter importer, ITransactionService transactionService)
         {
             _importer = importer;
+            _transactionService = transactionService;
         }
 
-        public Task<List<Transaction>> Handle(ImportTxsCommand request, CancellationToken cancellationToken)
+        public async Task<List<Transaction>> Handle(ImportTxsCommand request, CancellationToken cancellationToken)
         {
             var transactions = _importer.ReadTransactions(request.Options);
+            var addedTxs = await _transactionService.AddTransactionsAsync(transactions);
             
-            // TODO: Save them in memory place
-            
-            return Task.FromResult(transactions);
+            return addedTxs;
         }
     }
 }

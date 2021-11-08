@@ -25,6 +25,7 @@ namespace CryptoInfo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IWalletService, WalletService>();
+            services.AddSingleton<ITransactionService, TransactionService>();
             services.AddSingleton<ITransactionImporter, CsvTransactionImporter>();
             
             services.AddControllersWithViews();
