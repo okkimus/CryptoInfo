@@ -1,0 +1,2 @@
+﻿"Txhash","Blockno","UnixTimestamp","DateTime","From","To","ContractAddress","Value_IN(FTM)","Value_OUT(FTM)","CurrentValue @ $3.074/FTM","TxnFee(FTM)","TxnFee(USD)","Historical $Price/FTM","Status","ErrCode","Method"
+"0xf3cde7d55a834a2f7a8243d54520552aed12d11de527775d3ac33a858b9420db","21391932","1636330621","2021-11-08 00:17:01","0xf3c3992cf746b999b10ba328b945f77ebef365b8","0xf491e7b69e4244ad4002bc14e878a34207e38c29","","0","0","0","0.018654395375","0.05734361138275","","","","Swap Exact Tokens For ETH",""

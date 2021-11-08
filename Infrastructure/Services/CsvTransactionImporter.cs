@@ -66,6 +66,7 @@ namespace Infrastructure.Services
                     {
                         var currentTx = txsEnumerator.Current;
                         resultTransactions.Add(MapTransaction(currentTx));
+                        _txsLeftToRead = txsEnumerator.MoveNext();
                     }
                     else
                     {
@@ -240,7 +241,7 @@ namespace Infrastructure.Services
         [Index(11)]
         public double TxnFeeUsd { get; set; }
         [Index(12)]
-        public double HistoricalPricePerFTM { get; set; }
+        public double? HistoricalPricePerFtm { get; set; }
         [Index(13)]
         public string Status { get; set; }
         [Index(14)]
