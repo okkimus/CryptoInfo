@@ -1,6 +1,8 @@
 ﻿import React from 'react';
 import { useState } from "react";
 import axios from 'axios';
+import Button from '@mui/material/Button';
+import { Stack } from '@mui/material';
 
 function FileUpload() {
     const [txFile, setTxFile] = useState<any>(null);
@@ -10,7 +12,7 @@ function FileUpload() {
         setTxFile(event.target.files[0]);
     };
 
-    const onTrasnferFileChange = (event: any) => {
+    const onTransferFileChange = (event: any) => {
         setTransferFile(event.target.files[0]);
     };
     
@@ -29,30 +31,39 @@ function FileUpload() {
             transferFile.name
         );
 
-        // Details of the uploaded file
-        console.log(txFile);
-        console.log(transferFile);
-
-        // Request made to the backend api
-        // Send formData object
         axios.post("/import/transactions", formData);
-    };
-
-    const test = () => {
-        const text = axios.get("/import/hello");
-        console.log(text)
     };
     
     return (
-        <div className="FileUpload">
-            <input type="file" onChange={onTxFileChange} />
-            <input type="file" onChange={onTrasnferFileChange} />
-            <button onClick={onFileUpload}>
-                Upload!
-            </button>
+        <Stack className="FileUpload">
+            <Button
+                variant="contained"
+                component="label">
+                Select TX CSV
+                <input
+                    type="file"
+                    hidden
+                    onChange={onTxFileChange}
+                />
+            </Button>
+            <div>Selected file: {txFile?.name}</div>
             
-            <button onClick={test}>Test</button>
-        </div>
+            <Button
+                variant="contained"
+                component="label">
+                Select transfer CSV
+                <input
+                    type="file"
+                    hidden
+                    onChange={onTransferFileChange}
+                />
+            </Button>
+            <div>Selected file: {transferFile?.name}</div>
+
+            <Button variant="contained" onClick={onFileUpload}>
+                Upload!
+            </Button>
+        </Stack>
     );
 }
 

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import axios from 'axios';
 import Wallet from "../types/Wallet";
+import Button from '@mui/material/Button';
+import {FormControl, InputLabel, MenuItem, Select, Stack} from "@mui/material";
 
 function WalletDetails() {
     const [wallet, setWallet] = useState<Wallet>();
@@ -32,20 +34,27 @@ function WalletDetails() {
     }
 
     return (
-        <div className="WalletDetails">
-            <label>Address</label>
-            <select name="names" id="names" onChange={event => setWalletName(event.target.value)}>
-                {walletNames.map(name => {
-                        return <option value={name}>{name}</option>})}
-            </select>
+        <Stack alignItems="flex-start" className="WalletDetails">
+            <FormControl fullWidth>
+                <InputLabel id="wallet-label">Wallet</InputLabel>
+                <Select
+                    labelId="wallet-label"
+                    value={walletName}
+                    label="Wallet"
+                    onChange={event => setWalletName(event.target.value)}>
+                    <MenuItem value={"0"}>- Select wallet -</MenuItem>
+                    {walletNames.map(name => {
+                        return <MenuItem key={name} value={name}>{name}</MenuItem>})}
+                </Select>
+            </FormControl>
 
-            <button onClick={fetchWallet}>
+            <Button onClick={fetchWallet}>
                 Load wallet details
-            </button>
-            <button onClick={getWallets}>
+            </Button>
+            <Button onClick={getWallets}>
                 Get available wallets
-            </button>
-        </div>
+            </Button>
+        </Stack>
     );
 }
 

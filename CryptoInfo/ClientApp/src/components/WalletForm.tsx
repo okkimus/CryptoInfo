@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { useState } from "react";
 import axios from 'axios';
+import {Button, Stack, TextField} from "@mui/material";
 
 function WalletForm() {
     const [name, setName] = useState<string>("");
@@ -16,16 +17,16 @@ function WalletForm() {
     };
 
     return (
-        <div className="FileUpload">
-            <label>Address</label>
-            <input type="text" onChange={event => setAddress(event.target.value)} />
-            <label>Name</label>
-            <input type="text" onChange={event => setName(event.target.value)} />
+        <Stack alignItems="flex-start" spacing={2} className="FileUpload">
+            <TextField value={address} label="Address" variant="outlined" 
+                       onChange={event => setAddress(event.target.value)} />
+            <TextField value={name} label="Name" variant="outlined" 
+                       onChange={event => setName(event.target.value)} />
 
-            <button onClick={createWallet}>
+            <Button disabled={name == "" || address == ""} variant="contained" onClick={createWallet}>
                 Create wallet
-            </button>
-        </div>
+            </Button>
+        </Stack>
     );
 }
 

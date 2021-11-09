@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axios from 'axios';
 import Transaction from "../types/Transaction";
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 
 function TransactionList() {
     const [transactions, setTransactions] = useState<Array<Transaction>>([]);
@@ -20,20 +21,33 @@ function TransactionList() {
 
     return (
         <div className="Wallets">
-            <table>
-                <tr>
-                    <th>Hash</th>
-                    <th>From</th>
-                    <th>To</th>
-                </tr>
-                {transactions.map(function(tx) {
-                    return (<tr key={tx.hash}>
-                                <td>{tx.hash}</td>
-                                <td>{tx.from}</td>
-                                <td>{tx.to}</td>
-                            </tr>)
-                })}
-            </table>
+            <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Hashs</TableCell>
+                            <TableCell>Timestamp</TableCell>
+                            <TableCell>From</TableCell>
+                            <TableCell>To</TableCell>
+                            <TableCell>Value</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {transactions.map((tx) => (
+                            <TableRow
+                                key={tx.hash}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                                <TableCell component="th" scope="row">{tx.hash}</TableCell>
+                                <TableCell>{tx.timestamp}</TableCell>
+                                <TableCell>{tx.from}</TableCell>
+                                <TableCell>{tx.to}</TableCell>
+                                <TableCell>{tx.valueOut}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
             <button onClick={getTransactions}>
                 Fetch transactions
